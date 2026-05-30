@@ -1,0 +1,75 @@
+import java.util.*;
+
+public class Main {
+
+    static int tsp(int n, int[][] dist) {
+
+        int[][] dp = new int[1 << n][n];
+
+        for (int[] row : dp)
+            Arrays.fill(row, Integer.MAX_VALUE);
+
+        dp[1][0] = 0; // Start at Warehouse W
+
+        for (int mask = 1; mask < (1 << n); mask++) {
+
+            for (int v = 0; v < n; v++) {
+
+                if ((mask & (1 << v)) == 0)
+                    continue;
+
+                if (dp[mask][v] == Integer.MAX_VALUE)
+                    continue;
+
+                for (int u = 0; u < n; u++) {
+
+                    if ((mask & (1 << u)) != 0)
+                        continue;
+
+                    int newMask = mask | (1 << u);
+
+                    dp[newMask][u] = Math.min(
+                            dp[newMask][u],
+                            dp[mask][v] + dist[v][u]
+                    );
+                }
+            }
+        }
+
+        int finalMask = (1 << n) - 1;
+
+        int answer = Integer.MAX_VALUE;
+
+        for (int v = 1; v < n; v++) {
+
+            if (dp[finalMask][v] != Integer.MAX_VALUE) {
+
+                answer = Math.min(
+                        answer,
+                        dp[finalMask][v] + dist[v][0]
+                );
+            }
+        }
+
+        return answer;
+    }
+
+    public static void main(String[] args) {
+
+        int[][] dist = {
+
+                {0,10,15,20,12},
+                {10,0,35,25,30},
+                {15,35,0,30,20},
+                {20,25,30,0,15},
+                {12,30,20,15,0}
+        };
+
+        int n = 5;
+
+        int answer = tsp(n, dist);
+
+        System.out.println("Optimal Tour Cost = "
+                + answer + " km");
+    }
+}
